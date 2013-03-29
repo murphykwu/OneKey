@@ -190,14 +190,14 @@ public class OneKeyActivity extends Activity {
 			//安装所有选择的apk文件
 			case R.id.bt_install:
 				//显示所有在安装列表里面的程序信息，installList
-				installList = iaa.getInstallApks();
-				//如果安装列表为空，提示用户选中一个应用再安装
-				if(installList.isEmpty())
+//				installList = iaa.getInstallApks();
+				//如果安装个数为0，提示用户选中一个应用再安装
+				if(iaa.getCheckedCounts() == 0)/*installList.isEmpty()*/
 				{
 					Toast.makeText(mContext, mContext.getResources().getString(R.string.no_app_selected), Toast.LENGTH_SHORT).show();
 					break;
 				}
-				Log.i(TAG, "show the progress Dialog");
+//				Log.i(TAG, "show the progress Dialog");
 				proDialog.setMessage(mContext.getResources().getString(R.string.installing));
 				proDialog.show();
 //				如果不使用下面的方式，这个progressdialog就不能够显示出来。原因未知
@@ -207,7 +207,7 @@ public class OneKeyActivity extends Activity {
 						// TODO Auto-generated method stub						
 						try {
 							//installBatch2();	
-							Log.i(TAG, "onclicklistner start to install apk batch");
+//							Log.i(TAG, "onclicklistner start to install apk batch");
 							installApkBatch();
 							//由于安装完毕之后，launcher需要比较长时间才能将程序图标在mainmenu里面刷新出来
 							//所以先延迟5秒钟，但是还是有一两个图标会延迟显示。没办法了，可能需要查一下launcher如何刷新的
@@ -256,7 +256,7 @@ public class OneKeyActivity extends Activity {
 		Bundle bundle = new Bundle();
 		bundle.putInt(InstallAppAdapter.INSTALL_COUNTS, iaa.getCheckedCounts());
 		bundle.putInt(InstallAppAdapter.INSTALL_SUCESS_COUNTS, iaa.getSucessCounts());
-		bundle.putInt(InstallAppAdapter.INSTALL_FAILURE_COUNTS, iaa.getCheckedCounts() - iaa.getSucessCounts());
+		bundle.putInt(InstallAppAdapter.INSTALL_FAILURE_COUNTS, iaa.getFailureCounts());
 		Log.i(TAG, iaa.getCheckedCounts() + "    ," + iaa.getSucessCounts());
 		Intent intent = new Intent(OneKeyActivity.this, ResultShowActivity.class);
 		intent.putExtras(bundle);
@@ -382,24 +382,6 @@ public class OneKeyActivity extends Activity {
 			
 		}
 	};
-	
-//	private void rename()
-//	{
-//		mSelectedDialog = DIALOG_RENAME;
-//		showDialog(DIALOG_RENAME);
-//	}
-//	
-//	private void share()
-//	{
-//		mSelectedDialog = DIALOG_SHARE;
-//		showDialog(DIALOG_SHARE);
-//	}
-//	
-//	private void detail()
-//	{
-//		mSelectedDialog = DIALOG_DETAIL;
-//		showDialog(DIALOG_DETAIL);
-//	}
 	
 	private void dialogYesNoOnClick(int which)
 	{
@@ -531,12 +513,18 @@ public class OneKeyActivity extends Activity {
     	int dataSize = mData.size();
     	Log.i(TAG, "----> installApkBatch mData size = " + mData.size());
     	mPm = getPackageManager();
+    	PackageInstallObserver observer = new PackageInstallObserver();
+    	/*每次批量安装之前，必须先将安装完成的这个标志位置零, 并且清空安装成功列表，安装失败列表*/
+    	mInstallComplete = 0;
+    	iaa.clearSuceesAndFailList();
     	for(int i = 0; i < dataSize; i ++)
     	{
-    		Log.i(TAG, "for mData i = " + i);
+    		installindex  = i;
+//    		Log.i(TAG, "for mData i = " + i);
     		/*当选定要安装的时候才执行安装动作*/
-    		if((mData.get(i).ifInstall()) || (mData.get(i).getPackage() != null))
+    		if((mData.get(i).IsChecked()) && (mData.get(i).getPackage() != null))
     		{
+    			Log.i(TAG, "程序被选中，可以安装。i = " + i);
     	    	String pkgName = mData.get(i).getPackage().packageName;    	    	
     	    	String[] oldName = mPm.canonicalToCurrentPackageNames(new String[]{pkgName});
     	    	if(oldName != null && oldName.length > 0 && oldName[0] != null)
@@ -552,68 +540,66 @@ public class OneKeyActivity extends Activity {
     	    	}
     	    	ApkDetails mAd = mData.get(i);
     	    	int iFlag = mAd.getInstallFlag();
-    	    	String installerPackagename = getIntent().getStringExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME);
-    	    	PackageInstallObserver observer = new PackageInstallObserver();
-    	    	mPm.installPackage(mAd.getPackageURI(), observer, iFlag, installerPackagename);
+    	    	String installerPackagename = getIntent().getStringExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME);    	    	
+    	    	mPm.installPackage(mAd.getPackageURI(), observer, iFlag, installerPackagename);    	    	
     		}
     	}
-    	
     }
     
     
     /**
      * 批量安装的程序    
      */
-    public void installBatch2()
-    {
-
-    	mWakeLock.acquire();
-    	//获取已经选择的要安装的程序列表
-    	List<Integer> installingApks = iaa.getInstallApks();
-    	int installCount = installingApks.size();
-    	while(installindex < installCount)
-    	{//如果正在安装的这个apk的package变量不是为空，那么就安装
-    		if(mData.get(installingApks.get(installindex)).getPackage() != null)
-    		{//安装在选中的应用列表中的单个程序。
-    			initiateInstall2();
-    		}
-    		installindex ++;
-    	}
-    }
+//    public void installBatch2()
+//    {
+//
+//    	mWakeLock.acquire();
+//    	//获取已经选择的要安装的程序列表
+//    	List<Integer> installingApks = iaa.getInstallApks();
+//    	int installCount = installingApks.size();
+//    	while(installindex < installCount)
+//    	{//如果正在安装的这个apk的package变量不是为空，那么就安装
+//    		if(mData.get(installingApks.get(installindex)).getPackage() != null)
+//    		{//安装在选中的应用列表中的单个程序。
+//    			initiateInstall2();
+//    		}
+//    		installindex ++;
+//    	}
+//    }
     
     /**
      * 安装当前轮到的apk应用
      */
-    private void initiateInstall2()
-    {
-    	String pkgName = mData.get(iaa.getInstallApks().get(installindex)).getPackage().packageName;
-    	mPm = getPackageManager();
-    	String[] oldName = mPm.canonicalToCurrentPackageNames(new String[]{pkgName});
-    	if(oldName != null && oldName.length > 0 && oldName[0] != null)
-    	{
-    		pkgName = oldName[0];
-    		mData.get(iaa.getInstallApks().get(installindex)).getPackage().setPackageName(pkgName);
-    	}
-    	try{
-    		mData.get(iaa.getInstallApks().get(installindex)).setApplicationInfo(mPm.getApplicationInfo(pkgName, PackageManager.GET_UNINSTALLED_PACKAGES));
-    	}catch(NameNotFoundException e)
-    	{
-    		mData.get(iaa.getInstallApks().get(installindex)).setApplicationInfo(null);
-    	}
-    	initView2();
-    }
+//    private void initiateInstall2()
+//    {
+//    	String pkgName = mData.get(iaa.getInstallApks().get(installindex)).getPackage().packageName;
+//    	mPm = getPackageManager();
+//    	String[] oldName = mPm.canonicalToCurrentPackageNames(new String[]{pkgName});
+//    	if(oldName != null && oldName.length > 0 && oldName[0] != null)
+//    	{
+//    		pkgName = oldName[0];
+//    		mData.get(iaa.getInstallApks().get(installindex)).getPackage().setPackageName(pkgName);
+//    	}
+//    	try{
+//    		mData.get(iaa.getInstallApks().get(installindex)).setApplicationInfo(mPm.getApplicationInfo(pkgName, PackageManager.GET_UNINSTALLED_PACKAGES));
+//    	}catch(NameNotFoundException e)
+//    	{
+//    		mData.get(iaa.getInstallApks().get(installindex)).setApplicationInfo(null);
+//    	}
+//    	initView2();
+//    }
     
     /**
      * 主要是获取installFlag的值。调用installPackage进行安装。
      */
-    public void initView2()
-    {
-    	ApkDetails mAd = mData.get(iaa.getInstallApks().get(installindex));
-    	int iFlag = mAd.getInstallFlag();
-    	String installerPackagename = getIntent().getStringExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME);
-    	PackageInstallObserver observer = new PackageInstallObserver();
-    	mPm.installPackage(mAd.getPackageURI(), observer, iFlag, installerPackagename);
-    }
+//    public void initView2()
+//    {
+//    	ApkDetails mAd = mData.get(iaa.getInstallApks().get(installindex));
+//    	int iFlag = mAd.getInstallFlag();
+//    	String installerPackagename = getIntent().getStringExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME);
+//    	PackageInstallObserver observer = new PackageInstallObserver();
+//    	mPm.installPackage(mAd.getPackageURI(), observer, iFlag, installerPackagename);
+//    }
     
     /**
      * 监控安装状况如何。查看PackageManager.INSTALL_SUCCEEDED，这个类里面有多大20种安装不成功的状况
@@ -632,8 +618,15 @@ public class OneKeyActivity extends Activity {
 			if(returnCode == PackageManager.INSTALL_SUCCEEDED)
 			{
 				Log.i(TAG, "install success =" + packageName + ", installindex = " + installindex);
-				Integer tmp = iaa.getInstallApks().get(mInstallComplete);
-				iaa.addSuccessList(iaa.getInstallApks().get(mInstallComplete));
+				//只能存包名了，所以考虑apk的扫描方式
+				iaa.addSuccessList(packageName);
+//				Integer tmp = iaa.getInstallApks().get(mInstallComplete);
+//				iaa.addSuccessList(iaa.getInstallApks().get(mInstallComplete));
+			}else
+			{
+				//只能存包名了，所以考虑apk的扫描方式
+				iaa.addFailList(packageName);//mData.get(installindex)
+				Log.i(TAG, "install failure =" + packageName + ", installindex = " + installindex);
 			}
 			Log.i(TAG, "install returnCode =" + returnCode);
 			mInstallComplete ++;
@@ -641,8 +634,7 @@ public class OneKeyActivity extends Activity {
 			if(mInstallComplete == iaa.getCheckedCounts())
 			{//当所有的应用安装完毕后再显示安装结果
 				Message msg = mHandler.obtainMessage(INSTALL_COMPLETE);
-				mHandler.sendMessage(msg);
-				
+				mHandler.sendMessage(msg);				
 			}
 		}
     	
@@ -661,10 +653,11 @@ public class OneKeyActivity extends Activity {
 			switch(msg.what)
 			{
 			case INSTALL_COMPLETE:
+				Log.i(TAG, "安装完毕，关闭进度条框。");
 				//安装完毕先关掉进度条框
 				proDialog.cancel();
 				//安装完毕之后就执行更新桌面和显示新窗口操作
-				Log.i(TAG, "into refreshDesk");
+//				Log.i(TAG, "into refreshDesk");
 				//当全选所有应用的时候才刷新桌面，因为这个一般是工厂安装才会用到。
 				if(iaa.getCheckedCounts() == iaa.getAllApkCounts())
 				{

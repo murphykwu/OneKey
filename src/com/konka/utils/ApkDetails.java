@@ -154,7 +154,7 @@ public class ApkDetails {
 		appInfo = ai;
 	}
 	
-	public boolean getIsChecked()
+	public boolean IsChecked()
 	{//isChecked
 		return ifInstall;
 	}
@@ -244,16 +244,16 @@ public class ApkDetails {
 	{
 		return absPath;
 	}
-	
-	public boolean ifInstall()
-	{
-		return ifInstall;
-	}
-	
-	public void setInstallFlag(boolean install)
-	{
-		ifInstall = install;
-	}
+
+//	public boolean ifInstall()
+//	{
+//		return ifInstall;
+//	}
+//	
+//	public void setInstallFlag(boolean install)
+//	{
+//		ifInstall = install;
+//	}
 	
 	/**
 	 * 设定该应用是否安装成功

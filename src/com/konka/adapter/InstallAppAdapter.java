@@ -2,6 +2,7 @@ package com.konka.adapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import com.konka.onekey.R;
@@ -21,7 +22,10 @@ public class InstallAppAdapter extends BaseAdapter {
 	
 	private final static String TAG = "onekey";
 	private List<ApkDetails> mData = new ArrayList<ApkDetails>();
-	private List<ApkDetails> mCloneData = new ArrayList<ApkDetails>();
+	private List<ApkDetails> mInstallSuccess = new ArrayList<ApkDetails>();
+	private List<ApkDetails> mInstallFailure = new ArrayList<ApkDetails>();
+	private List<String> mStrInstallSuccess = new ArrayList<String>();
+	private List<String> mStrInstallFailure = new ArrayList<String>();
 	/**
 	 * 选中待安装的apk位置
 	 */
@@ -87,7 +91,7 @@ public class InstallAppAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// TODO Auto-generated method stub
-		Log.i(TAG, "getView position = " + position);
+		//Log.i(TAG, "getView position = " + position);
 
 		ViewHolder viewHolder = new ViewHolder();
 		if (convertView == null) {
@@ -115,7 +119,7 @@ public class InstallAppAdapter extends BaseAdapter {
 		viewHolder.iv_appIcon.setImageDrawable(mData.get(position).getApkIcon());//.setImageResource(R.drawable.ic_launcher)
 		viewHolder.tv_appName.setText(mAppName);
 		viewHolder.tv_appVersion.setText(mAppVersion);
-		viewHolder.cb_installed.setChecked(mData.get(position).getIsChecked());//isSelected.get(position)
+		viewHolder.cb_installed.setChecked(mData.get(position).IsChecked());//isSelected.get(position)
 		
 		return convertView;		
 	}
@@ -132,14 +136,14 @@ public class InstallAppAdapter extends BaseAdapter {
 		mData.get(index).setIsChecked(holder.cb_installed.isChecked());
 		if(holder.cb_installed.isChecked())
 		{
-			Log.i(TAG, "InstallAppAdapter ADD checked" + mData.get(index).toString());
-			installApks.add(Integer.valueOf(index));
-			selectedCounts++ ;
+			Log.i(TAG, "InstallAppAdapter ADD checked " + mData.get(index).toString());
+			//installApks.add(Integer.valueOf(index));
+			selectedCounts ++;
 		}else
 		{
-			Log.i(TAG, "InstallAppAdapter REMOVE checked" + mData.get(index).toString());
-			installApks.remove(Integer.valueOf(index));
-			selectedCounts-- ;
+			Log.i(TAG, "InstallAppAdapter REMOVE checked " + mData.get(index).toString());
+			//installApks.remove(Integer.valueOf(index));
+			selectedCounts --;
 		}
 	}
 	
@@ -154,9 +158,8 @@ public class InstallAppAdapter extends BaseAdapter {
 		if(!mFlag)
 		{
 			selectedCounts = 0;
-			installApks.clear();
-			Log.i(TAG, "installApks clear " + installApks.size());
-			allApkCounts = mData.size();
+			//installApks.clear();
+			Log.i(TAG, "setAllCheckboxStatus unSelectAll!");
 			for(int i = 0; i < allApkCounts; i ++)
 			{
 				mData.get(i).setIsChecked(false);
@@ -164,15 +167,24 @@ public class InstallAppAdapter extends BaseAdapter {
 		}else//全选所有
 		{
 			selectedCounts = mData.size();
-			installApks.clear();
-			allApkCounts = mData.size();
+			//installApks.clear();
 			for(int i = 0; i < allApkCounts; i ++)
 			{	
-				installApks.add(Integer.valueOf(i));
+			//	installApks.add(Integer.valueOf(i));
 				mData.get(i).setIsChecked(true);
 			}
-//			Log.i(TAG, "installApks selectall " + installApks.size());
+			Log.i(TAG, "setAllCheckboxStatus selectall");
 		}		
+	}
+	
+	/**
+	 * 在每次批量安装之前必须清空安装成功和失败列表，因为
+	 * 每次安装必须重新计数
+	 */
+	public void clearSuceesAndFailList()
+	{
+		mStrInstallFailure.clear();
+		mStrInstallSuccess.clear();
 	}
 	
 	/**
@@ -193,9 +205,29 @@ public class InstallAppAdapter extends BaseAdapter {
 		return installApks;
 	}
 	
-	public void addSuccessList(Integer add)
+//	public void addSuccessList(Integer add)
+//	{
+//		installSuccess.add(add);
+//	}
+
+	/**
+	 * 重载一下上面的函数。如果验证通过就不需要上面的了。
+	 * 由于异步原因，mInstallSuccess这个列表并无正确，不过数量应该是ok的。
+	 * @param sucessApk
+	 */
+	public void addSuccessList(ApkDetails sucessApk)
 	{
-		installSuccess.add(add);
+		mInstallSuccess.add(sucessApk);
+	}
+	
+	/**
+	 * 重载一下上面的函数。如果验证通过就不需要上面的了。
+	 * 由于异步原因，mInstallSuccess这个列表并无正确，不过数量应该是ok的。
+	 * @param sucessApk
+	 */
+	public void addSuccessList(String sucessApk)
+	{
+		mStrInstallSuccess.add(sucessApk);
 	}
 	
 	public void removeSuccessList(ApkDetails add)
@@ -207,6 +239,24 @@ public class InstallAppAdapter extends BaseAdapter {
 	{
 		installFail.add(add);
 	}
+	/**
+	 * 重载一下安装失败列表的操作。
+	 * @param failure
+	 */
+	public void addFailList(ApkDetails failure)
+	{
+		mInstallFailure.add(failure);
+	}
+	
+	/**
+	 * 重载一下安装失败列表的操作。
+	 * @param failure
+	 */
+	public void addFailList(String failure)
+	{
+		mStrInstallFailure.add(failure);
+	}
+	
 	public void removeFailList(ApkDetails add)
 	{
 		installFail.remove(add);
@@ -226,7 +276,17 @@ public class InstallAppAdapter extends BaseAdapter {
 	 */
 	public int getSucessCounts()
 	{
-		return installSuccess.size();
+		//return installSuccess.size();
+		return mStrInstallSuccess.size();
+		//return mSetInstallSuccess.size();
+		
+	}
+	
+	public int getFailureCounts()
+	{
+		//return installSuccess.size();
+		return mStrInstallFailure.size();
+		
 	}
 	
 	/**
@@ -257,33 +317,36 @@ public class InstallAppAdapter extends BaseAdapter {
 		
 		//去掉指定位置的内容
 		Log.i(TAG, "removeApk mData.size() = " + mData.size());
+		//如果删除的是以选中的apk，那么还必须改变选中的数值了。
+		if(mData.get(apkIndex).IsChecked())
+		{
+			selectedCounts --;
+		}
 		mData.remove(apkIndex);
 		Log.i(TAG, "removeApk mData.size()2 = " + mData.size());
 		//判断指定位置是否在installApks和installSuccess这两个列表里面。伪代码为：
 		//判断删除序号和当前内容，如果一样，说明选中的里面包含当前删除的，直接remove掉他。如果取出的比当前删除的小
 		//说明需要将存储的序号减1
-		int installApksSize = installApks.size();
-		for(int i = 0; i < installApksSize; i ++)
-		{
-			//清楚installApks相关的数据，移除之后会导致该list长度减少，所以需要调整list长度和当前处理到的元素
-			if(apkIndex == installApks.get(i))
-			{
+//		int installApksSize = installApks.size();
+//		for(int i = 0; i < installApksSize; i ++)
+//		{
+//			//清楚installApks相关的数据，移除之后会导致该list长度减少，所以需要调整list长度和当前处理到的元素
+//			if(apkIndex == installApks.get(i))
+//			{
 //				Log.i(TAG, "installApks size = " + installApks.size());
-				//由于之前没有将apkIndex转化成Integer对象，导致remove掉的不是list内置的对象，而是指定位置的对象
-				//导致异常情况
-				installApks.remove(new Integer(apkIndex));
-//				Log.i(TAG, "installApks size2 = " + installApks.size());
-				i --;
-				installApksSize --;
-			}
-			//重新调整installapks列表里面存储的mData中的对象下标
-			if((i >= 0) && (apkIndex < installApks.get(i)))
-			{
+//				//由于之前没有将apkIndex转化成Integer对象，导致remove掉的不是list内置的对象，而是指定位置的对象
+//				//导致异常情况
+//				installApks.remove(new Integer(apkIndex));
+//				i --;
+//				installApksSize --;
+//			}
+//			//重新调整installapks列表里面存储的mData中的对象下标
+//			if((i >= 0) && (apkIndex < installApks.get(i)))
+//			{
 //				Log.i(TAG, "i else if = " + i + ", the contents = " + (installApks.get(i) -1));
-				installApks.set(i, new Integer(installApks.get(i) -1));
-			}			
-
-		}
+//				installApks.set(i, new Integer(installApks.get(i) -1));
+//			}
+//		}
 
 	}
 	
