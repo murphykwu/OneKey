@@ -132,22 +132,31 @@ public class ApkDetails {
 	
 	public String getPackageName()
 	{
-		return packageName;
+		if(getApplicationInfo() != null)
+			return getApplicationInfo().packageName;//packageName;
+		else
+			return null;
 	}
 	
 	public String getAppVersion()
 	{
-		return version;
+		if(getPackageInfo() != null)
+			return getPackageInfo().versionName;
+		else
+			return null;
 	}
 	
 	public PackageInfo getPackageInfo()
 	{
-		return packageInfo;
+		return pm.getPackageArchiveInfo(getAppPath(), PackageManager.GET_ACTIVITIES);//packageInfo
 	}
 	
 	public ApplicationInfo getApplicationInfo()
 	{
-		return appInfo;
+		if(getPackageInfo() != null)
+			return getPackageInfo().applicationInfo;
+		else
+			return null;
 	}
 	public void setApplicationInfo(ApplicationInfo ai)
 	{
@@ -166,12 +175,12 @@ public class ApkDetails {
 	
 	public Uri getPackageURI()
 	{
-		return this.mPackageURI;
+		return Uri.fromFile(apks);
 	}
 	
 	public PackageParser.Package getPackage()
 	{
-		return mPkgInfo;
+		return PackageUtil.getPackageInfo(Uri.fromFile(apks));
 	}
 	
 	/**
@@ -180,6 +189,7 @@ public class ApkDetails {
 	 */
 	public int getInstallFlag()
 	{
+		mPkgInfo = getPackage();
 		try {
 			PackageInfo pi = pm.getPackageInfo(mPkgInfo.applicationInfo.packageName, PackageManager.GET_UNINSTALLED_PACKAGES);
 			if(pi != null)
@@ -242,7 +252,7 @@ public class ApkDetails {
 	 */
 	public String getAppPath()
 	{
-		return absPath;
+		return apks.getAbsolutePath();
 	}
 
 //	public boolean ifInstall()

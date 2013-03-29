@@ -1,5 +1,6 @@
 package com.konka.adapter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,8 +23,8 @@ public class InstallAppAdapter extends BaseAdapter {
 	
 	private final static String TAG = "onekey";
 	private List<ApkDetails> mData = new ArrayList<ApkDetails>();
-	private List<ApkDetails> mInstallSuccess = new ArrayList<ApkDetails>();
-	private List<ApkDetails> mInstallFailure = new ArrayList<ApkDetails>();
+//	private List<ApkDetails> mInstallSuccess = new ArrayList<ApkDetails>();
+//	private List<ApkDetails> mInstallFailure = new ArrayList<ApkDetails>();
 	private List<String> mStrInstallSuccess = new ArrayList<String>();
 	private List<String> mStrInstallFailure = new ArrayList<String>();
 	/**
@@ -31,9 +32,9 @@ public class InstallAppAdapter extends BaseAdapter {
 	 */
 	private List<Integer> installApks = new ArrayList<Integer>();
 	//安装成功和失败的apk列表
-	private List<Integer> installSuccess = new ArrayList<Integer>();
-	private List<Integer> installFail = new ArrayList<Integer>();
-	private HashMap<Integer, Boolean> isSelected;
+//	private List<Integer> installSuccess = new ArrayList<Integer>();
+//	private List<Integer> installFail = new ArrayList<Integer>();
+//	private HashMap<Integer, Boolean> isSelected;
 	LayoutInflater mInflater;
 	//以选中的app个数
 	private int selectedCounts = 0;
@@ -47,11 +48,11 @@ public class InstallAppAdapter extends BaseAdapter {
 	public InstallAppAdapter(LayoutInflater inflater, Context mContext, List<ApkDetails> mData)
 	{
 		mInflater = inflater;
-		isSelected = new HashMap<Integer, Boolean>();
+//		isSelected = new HashMap<Integer, Boolean>();
 		this.mData = mData;
 		this.allApkCount = mData.size();
 		this.mContext = mContext;
-		initSelectedMap();
+//		initSelectedMap();
 	}
 
 	public void setListData(List<ApkDetails> data)
@@ -60,14 +61,14 @@ public class InstallAppAdapter extends BaseAdapter {
 		this.notifyDataSetChanged();
 	}
 	
-	public void initSelectedMap()
-	{
-		int len = mData.size();
-		for(int i = 0; i< len; i ++)
-		{
-			isSelected.put(i, false);
-		}
-	}
+//	public void initSelectedMap()
+//	{
+//		int len = mData.size();
+//		for(int i = 0; i< len; i ++)
+//		{
+//			isSelected.put(i, false);
+//		}
+//	}
 	
 	
 	@Override
@@ -215,10 +216,10 @@ public class InstallAppAdapter extends BaseAdapter {
 	 * 由于异步原因，mInstallSuccess这个列表并无正确，不过数量应该是ok的。
 	 * @param sucessApk
 	 */
-	public void addSuccessList(ApkDetails sucessApk)
-	{
-		mInstallSuccess.add(sucessApk);
-	}
+//	public void addSuccessList(ApkDetails sucessApk)
+//	{
+//		mInstallSuccess.add(sucessApk);
+//	}
 	
 	/**
 	 * 重载一下上面的函数。如果验证通过就不需要上面的了。
@@ -230,23 +231,23 @@ public class InstallAppAdapter extends BaseAdapter {
 		mStrInstallSuccess.add(sucessApk);
 	}
 	
-	public void removeSuccessList(ApkDetails add)
-	{
-		installSuccess.remove(add);
-	}
-	
-	public void addFailList(Integer add)
-	{
-		installFail.add(add);
-	}
+//	public void removeSuccessList(ApkDetails add)
+//	{
+//		installSuccess.remove(add);
+//	}
+//	
+//	public void addFailList(Integer add)
+//	{
+//		installFail.add(add);
+//	}
 	/**
 	 * 重载一下安装失败列表的操作。
 	 * @param failure
 	 */
-	public void addFailList(ApkDetails failure)
-	{
-		mInstallFailure.add(failure);
-	}
+//	public void addFailList(ApkDetails failure)
+//	{
+//		mInstallFailure.add(failure);
+//	}
 	
 	/**
 	 * 重载一下安装失败列表的操作。
@@ -257,17 +258,22 @@ public class InstallAppAdapter extends BaseAdapter {
 		mStrInstallFailure.add(failure);
 	}
 	
-	public void removeFailList(ApkDetails add)
+//	public void removeFailList(ApkDetails add)
+//	{
+//		installFail.remove(add);
+//	}
+//	/**
+//	 * 获取成功安装的应用列表
+//	 * @return
+//	 */
+//	public List<Integer> getSuccessList()
+//	{
+//		return installSuccess;
+//	}
+	
+	public void renameFile(int index, File destFile)
 	{
-		installFail.remove(add);
-	}
-	/**
-	 * 获取成功安装的应用列表
-	 * @return
-	 */
-	public List<Integer> getSuccessList()
-	{
-		return installSuccess;
+		
 	}
 	
 	/**
@@ -293,10 +299,10 @@ public class InstallAppAdapter extends BaseAdapter {
 	 * 获取安装失败的应用列表
 	 * @return
 	 */
-	public List<Integer> getFialList()
-	{
-		return installFail;
-	}
+//	public List<Integer> getFialList()
+//	{
+//		return installFail;
+//	}
 	
 	public int getAllApkCounts()
 	{
@@ -309,12 +315,6 @@ public class InstallAppAdapter extends BaseAdapter {
 	 */
 	public void removeApk(int apkIndex)
 	{
-//		Log.i(TAG, "apkIndex = " + apkIndex);
-//		for(int i = 0; i < installApks.size(); i ++)
-//		{
-//			Log.i(TAG, "removeApk---installApks index = " + i + ", contents = " + installApks.get(i));
-//		}
-		
 		//去掉指定位置的内容
 		Log.i(TAG, "removeApk mData.size() = " + mData.size());
 		//如果删除的是以选中的apk，那么还必须改变选中的数值了。
@@ -350,7 +350,6 @@ public class InstallAppAdapter extends BaseAdapter {
 
 	}
 	
-	
 	private final static class ViewHolder
 	{
 		CheckBox cb_installed;
@@ -358,18 +357,7 @@ public class InstallAppAdapter extends BaseAdapter {
 		TextView tv_appName;
 		TextView tv_appVersion;
 	}
-
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -89,8 +89,8 @@ public class OneKeyActivity extends Activity {
 //	private PackageParser.Package mPkgInfo;
 //	private List<File> apks;
 	private int installindex = 0;
-	private boolean installflag = true;
-	ArrayList failList=null;
+//	private boolean installflag = true;
+//	ArrayList failList=null;
 //	private ApplicationInfo mAppInfo = null;
 	private final int INSTALL_COMPLETE = 1;
 	private final int SCAN_COMPLETE = 2;
@@ -411,6 +411,7 @@ public class OneKeyActivity extends Activity {
 //			Log.i(TAG, "dialogRenameOnClick---------mLongClickFile = " + mLongClickFile.getName() + ", chageFileName = " + newName);
 			String desFileName = mLongClickFile.getParent() + "/" + newName;
 			File destFile = new File(desFileName);
+			
 			boolean result = mLongClickFile.renameTo(destFile);
 //			Log.i(TAG, "dialogRenameOnClick---------sourceFile = " + mLongClickFile.getName() 
 //					+ ", destFile = " + destFile.getName() + ", result = " + (result?"true":"false"));
@@ -542,6 +543,9 @@ public class OneKeyActivity extends Activity {
     	    	int iFlag = mAd.getInstallFlag();
     	    	String installerPackagename = getIntent().getStringExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME);    	    	
     	    	mPm.installPackage(mAd.getPackageURI(), observer, iFlag, installerPackagename);    	    	
+    		}else
+    		{//just for test
+    			Log.i(TAG, "有一个apk没有被选中. i = " + i + ", PackageName = " + mData.get(i).getPackageName());
     		}
     	}
     }
@@ -602,7 +606,7 @@ public class OneKeyActivity extends Activity {
 //    }
     
     /**
-     * 监控安装状况如何。查看PackageManager.INSTALL_SUCCEEDED，这个类里面有多大20种安装不成功的状况
+     * 监控安装状况如何。查看PackageManager.INSTALL_SUCCEEDED，这个类里面有多达20种安装不成功的状况
      * 所以需要注意是否细分。
      * @author konka
      *
@@ -626,15 +630,15 @@ public class OneKeyActivity extends Activity {
 			{
 				//只能存包名了，所以考虑apk的扫描方式
 				iaa.addFailList(packageName);//mData.get(installindex)
-				Log.i(TAG, "install failure =" + packageName + ", installindex = " + installindex);
+				Log.i(TAG, "install failure =" + packageName + ", installindex = " + installindex
+						+ ", returncode = " + returnCode);
 			}
-			Log.i(TAG, "install returnCode =" + returnCode);
 			mInstallComplete ++;
-			Log.i(TAG, "mInstallComplete = " + mInstallComplete + ", checked counts = " + iaa.getCheckedCounts());
+			Log.i(TAG, "install returnCode =" + returnCode + "， mInstallComplete = " + mInstallComplete + ", checked counts = " + iaa.getCheckedCounts());
 			if(mInstallComplete == iaa.getCheckedCounts())
 			{//当所有的应用安装完毕后再显示安装结果
 				Message msg = mHandler.obtainMessage(INSTALL_COMPLETE);
-				mHandler.sendMessage(msg);				
+				mHandler.sendMessage(msg);
 			}
 		}
     	

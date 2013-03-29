@@ -73,7 +73,11 @@ public class ScanApks {
 			else if(fileList.getName().endsWith("apk"))
 			{
 				Log.v(TAG, "file add: " + fileList.toString());	
-				scanApksList.add(new ApkDetails(fileList, mContext));
+				ApkDetails addFile = new ApkDetails(fileList, mContext);
+				if(addFile.getPackageName() != null)
+				{
+					scanApksList.add(addFile);
+				}
 				apksList.add(fileList);
 				apksNameList.add(fileList.getName());
 			}
