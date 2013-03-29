@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <CheckBox
+        android:id="@+id/cb_checkedApp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:layout_gravity="center_vertical"
+        android:text="@string/checkbox" />
+
+    <ImageView
+        android:id="@+id/iv_app_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/iv_description"
+        android:src="@drawable/ic_action_search"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical" >
+
+        <TextView
+            android:id="@+id/tv_app_name"
+            android:layout_width="wrap_content"                  
+            android:text="@string/default_app_name"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="10dip"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:gravity="left|center_vertical" />
+        <!-- android:singleLine="true" -->
+
+        <TextView
+            android:id="@+id/tv_app_version"
+            android:layout_marginLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:text="@string/default_app_version" />
+
+    </LinearLayout>
+
+</LinearLayout>

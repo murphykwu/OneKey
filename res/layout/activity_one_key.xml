@@ -1,0 +1,68 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+        <ListView
+            android:id="@+id/lv_installApps"
+            android:layout_width="match_parent"            
+            android:paddingBottom="63dp"
+            android:layout_height="wrap_content" >
+        </ListView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_btnView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal"
+        android:background="@drawable/bottom_bg"
+        android:gravity="center" >
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingLeft="13dip" >
+
+            <Button
+                android:id="@+id/bt_select"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/selectAll" />
+
+            <TextView
+                android:id="@+id/tv_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/select_bg"
+                android:visibility="invisible"
+                android:gravity="center"
+                android:text="@string/selected_apps" />
+
+        </RelativeLayout>
+
+
+        <Button
+            android:id="@+id/bt_install"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+			android:layout_weight="1"
+            android:text="@string/install"
+            android:layout_marginLeft="16dip"
+            android:layout_marginRight="13dip" />
+
+    </LinearLayout>
+
+</RelativeLayout>

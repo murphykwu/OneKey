@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="operation_menu">
+        <item>删除</item>
+        <item>重命名</item>
+        <item>分享</item>
+        <item>详情</item>
+    </string-array>
+</resources>

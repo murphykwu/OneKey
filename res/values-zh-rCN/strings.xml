@@ -1,0 +1,55 @@
+<resources>
+
+    <string name="app_name">一键安装</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_one_key">一键安装</string>
+    <string name="default_app_name">默认程序名称</string>
+    <string name="default_app_version">版本:&#x0020;1.0</string>
+    <string name="default_app_version_tag">版本:&#x0020;</string>
+    <string name="default_app_name_tag">名称:&#x0020;</string>
+    <string name="iv_description">用来显示应用程序的图标</string>
+    <string name="install">安装</string>
+    <string name="selectAll">全选</string>
+    <string name="unSelectAll">取消全选</string>
+    <string name="selected_apps">已选</string>
+    <string name="checkbox"></string>
+    <string name="scanning">正在扫描所有存储器空间&#8230;</string>
+    <string name="installing">正在安装所选应用&#8230;</string>
+    <string name="unknownApp">未知名称应用</string>
+    <string name="name">名称</string><!--  -->
+    <string name="size">大小</string>
+    <string name="modified_time">修改时间</string>
+    <string name="path">存储位置</string>
+    <string name="readable">可读</string>
+    <string name="writable">可写</string>
+    <string name="executable">可执行</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="sure">确定</string>
+    <string name="cancel">取消</string>
+    <string name="share_file">分享文件</string>
+    <string name="manipulate">操作</string>
+    <string name="warning">警告</string>
+    <string name="delete_confirm">是否删除该文件？</string>
+    <string name="rename">重命名</string>
+    <string name="details">详情</string>
+    <string name="no_app_selected">请至少选中一个应用，再点击安装按钮</string>
+    <string name="install_counts">安装总个数：</string>
+    <string name="install_success_counts">安装成功个数：</string>
+    <string name="install_failure_counts">安装失败个数：</string>
+    <string name="default_null"></string>
+    <string name="more_back_exit">再按一次退出程序&#8230;</string>
+    <string name="onekey_about">关于</string>
+    <string name="apply_name">一键安装</string>
+    <string name="ab_version">版本号: V1.2</string>
+    <string name="forum">官方论坛</string>
+    <string name="forum_address">www.museui.com</string>
+    <string name="sina_microblog">新浪微博</string>
+    <string name="ab_official_bb">官方论坛</string>
+    <string name="at_muse_ui">"@MuseUI"</string>
+    <string name="tencent_microblog">腾讯微博</string> 
+    <string name="service_QQ">客服QQ:2817457226</string>
+    <string name="copyright_info">MuseUI工作室    版权所有</string>    
+
+</resources>
