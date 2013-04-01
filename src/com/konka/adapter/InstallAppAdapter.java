@@ -23,8 +23,8 @@ public class InstallAppAdapter extends BaseAdapter {
 	
 	private final static String TAG = "onekey";
 	private List<ApkDetails> mData = new ArrayList<ApkDetails>();
-//	private List<ApkDetails> mInstallSuccess = new ArrayList<ApkDetails>();
-//	private List<ApkDetails> mInstallFailure = new ArrayList<ApkDetails>();
+	private List<ApkDetails> mInstallSuccess = new ArrayList<ApkDetails>();
+	private List<ApkDetails> mInstallFailure = new ArrayList<ApkDetails>();
 	private List<String> mStrInstallSuccess = new ArrayList<String>();
 	private List<String> mStrInstallFailure = new ArrayList<String>();
 	/**
@@ -116,7 +116,7 @@ public class InstallAppAdapter extends BaseAdapter {
 		//String mAppName = mContext.getString(R.string.default_app_name_tag) + mData.get(position).getFile().getName();
 		String mAppName = mData.get(position).getFile().getName();
 		String mAppVersion = mContext.getString(R.string.default_app_version_tag) + mData.get(position).getAppVersion();
-		Log.i("new", "position " + position + " mAppName = " + mAppName);
+		//Log.i("new", "position " + position + " mAppName = " + mAppName);
 		viewHolder.iv_appIcon.setImageDrawable(mData.get(position).getApkIcon());//.setImageResource(R.drawable.ic_launcher)
 		viewHolder.tv_appName.setText(mAppName);
 		viewHolder.tv_appVersion.setText(mAppVersion);
@@ -186,6 +186,8 @@ public class InstallAppAdapter extends BaseAdapter {
 	{
 		mStrInstallFailure.clear();
 		mStrInstallSuccess.clear();
+		mInstallFailure.clear();
+		mInstallSuccess.clear();
 	}
 	
 	/**
@@ -216,10 +218,10 @@ public class InstallAppAdapter extends BaseAdapter {
 	 * 由于异步原因，mInstallSuccess这个列表并无正确，不过数量应该是ok的。
 	 * @param sucessApk
 	 */
-//	public void addSuccessList(ApkDetails sucessApk)
-//	{
-//		mInstallSuccess.add(sucessApk);
-//	}
+	public void addSuccessList(ApkDetails sucessApk)
+	{
+		mInstallSuccess.add(sucessApk);
+	}
 	
 	/**
 	 * 重载一下上面的函数。如果验证通过就不需要上面的了。
@@ -231,10 +233,10 @@ public class InstallAppAdapter extends BaseAdapter {
 		mStrInstallSuccess.add(sucessApk);
 	}
 	
-//	public void removeSuccessList(ApkDetails add)
-//	{
-//		installSuccess.remove(add);
-//	}
+	public void removeSuccessList(ApkDetails add)
+	{
+		mInstallSuccess.remove(add);
+	}
 //	
 //	public void addFailList(Integer add)
 //	{
@@ -244,10 +246,10 @@ public class InstallAppAdapter extends BaseAdapter {
 	 * 重载一下安装失败列表的操作。
 	 * @param failure
 	 */
-//	public void addFailList(ApkDetails failure)
-//	{
-//		mInstallFailure.add(failure);
-//	}
+	public void addFailList(ApkDetails failure)
+	{
+		mInstallFailure.add(failure);
+	}
 	
 	/**
 	 * 重载一下安装失败列表的操作。

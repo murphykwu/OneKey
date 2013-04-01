@@ -121,7 +121,9 @@ public class OneKeyActivity extends Activity {
 	private ProgressDialog searchDialog;
 	private ScanApks sa;
 	//已选中，待安装的apk，最原始的数据只有mData，其他list都只记录应用的序号
-	private List<Integer> installList = new ArrayList<Integer>();	
+	private List<Integer> installList = new ArrayList<Integer>();
+	//监控apk安装完成这个动作
+	private PackageInstallObserver observer = new PackageInstallObserver();;
 	
 	/**
 	 * A: 该值用来存储所有理论上不重复的应用apk。该应用“包名&版本号”作为唯一的key。
@@ -208,7 +210,16 @@ public class OneKeyActivity extends Activity {
 						try {
 							//installBatch2();	
 //							Log.i(TAG, "onclicklistner start to install apk batch");
-							installApkBatch();
+					    	mWakeLock.acquire();					    	
+					    	Log.i(TAG, "----> installApkBatch mData size = " + mData.size());
+					    	mPm = getPackageManager();
+					    	//PackageInstallObserver observer = new PackageInstallObserver();
+					    	/*每次批量安装之前，必须先将安装完成的这个标志位置零, 并且清空安装成功列表，安装失败列表*/
+					    	mInstallComplete = 0;
+					    	//初始化当前安装的应用下标
+					    	installindex = 0;
+					    	iaa.clearSuceesAndFailList();
+							installApkBatch(installindex);
 							//由于安装完毕之后，launcher需要比较长时间才能将程序图标在mainmenu里面刷新出来
 							//所以先延迟5秒钟，但是还是有一两个图标会延迟显示。没办法了，可能需要查一下launcher如何刷新的
 							//结果发现当程序监听到package安装完毕需要一定的时间，所以不需要这个延时了。
@@ -304,7 +315,7 @@ public class OneKeyActivity extends Activity {
 			tv_selected_apps.setText(counts + "");
 		}
 	}
-	
+
 	
 	/**
 	 * 响应listview中单项的点击响应。当被点击时，需要设置单项的checkbox状态，按钮文字显示，选中的程序列表。
@@ -508,46 +519,48 @@ public class OneKeyActivity extends Activity {
     /**
      * 批量安装选中的apk
      */
-    public void installApkBatch()    {
+    /**
+     * 安装mData中指定下标的apk。
+     * @param apkIndex
+     */
+    public void installApkBatch(int apkIndex)    {
     	
-    	mWakeLock.acquire();
-    	int dataSize = mData.size();
-    	Log.i(TAG, "----> installApkBatch mData size = " + mData.size());
-    	mPm = getPackageManager();
-    	PackageInstallObserver observer = new PackageInstallObserver();
-    	/*每次批量安装之前，必须先将安装完成的这个标志位置零, 并且清空安装成功列表，安装失败列表*/
-    	mInstallComplete = 0;
-    	iaa.clearSuceesAndFailList();
-    	for(int i = 0; i < dataSize; i ++)
-    	{
-    		installindex  = i;
+
+//    	for(int i = 0; i < dataSize; i ++)
+//    	{
+//    		installindex  = i;
 //    		Log.i(TAG, "for mData i = " + i);
     		/*当选定要安装的时候才执行安装动作*/
-    		if((mData.get(i).IsChecked()) && (mData.get(i).getPackage() != null))
+    		if((mData.get(apkIndex).IsChecked()) && (mData.get(apkIndex).getPackage() != null))
     		{
-    			Log.i(TAG, "程序被选中，可以安装。i = " + i);
-    	    	String pkgName = mData.get(i).getPackage().packageName;    	    	
+    			Log.i(TAG, "程序被选中，可以安装。apkIndex = " + apkIndex);
+    	    	String pkgName = mData.get(apkIndex).getPackage().packageName;    	    	
     	    	String[] oldName = mPm.canonicalToCurrentPackageNames(new String[]{pkgName});
     	    	if(oldName != null && oldName.length > 0 && oldName[0] != null)
     	    	{
     	    		pkgName = oldName[0];
-    	    		mData.get(i).getPackage().setPackageName(pkgName);
+    	    		mData.get(apkIndex).getPackage().setPackageName(pkgName);
     	    	}
     	    	try{
-    	    		mData.get(i).setApplicationInfo(mPm.getApplicationInfo(pkgName, PackageManager.GET_UNINSTALLED_PACKAGES));
+    	    		mData.get(apkIndex).setApplicationInfo(mPm.getApplicationInfo(pkgName, PackageManager.GET_UNINSTALLED_PACKAGES));
     	    	}catch(NameNotFoundException e)
     	    	{
-    	    		mData.get(i).setApplicationInfo(null);
+    	    		mData.get(apkIndex).setApplicationInfo(null);
     	    	}
-    	    	ApkDetails mAd = mData.get(i);
+    	    	ApkDetails mAd = mData.get(apkIndex);
     	    	int iFlag = mAd.getInstallFlag();
     	    	String installerPackagename = getIntent().getStringExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME);    	    	
-    	    	mPm.installPackage(mAd.getPackageURI(), observer, iFlag, installerPackagename);    	    	
+    	    	mPm.installPackage(mAd.getPackageURI(), observer, iFlag, installerPackagename);
     		}else
-    		{//just for test
-    			Log.i(TAG, "有一个apk没有被选中. i = " + i + ", PackageName = " + mData.get(i).getPackageName());
+    		{
+    			//如果本来就是这个apk文件只是有一个apk后缀，但是内部文件是错误的。那么依然需要判断。
+    			//这个环节在扫描阶段已经判断了，所以不需要再进行处理，谨慎起见，依然做一个判断
+    			Log.i(TAG, "有一个apk没有被选中. i = " + apkIndex + ", PackageName = " + mData.get(apkIndex).getPackageName());
+    			installindex ++;
+    			installApkBatch(installindex);
+    			
     		}
-    	}
+//    	}
     }
     
     
@@ -624,21 +637,36 @@ public class OneKeyActivity extends Activity {
 				Log.i(TAG, "install success =" + packageName + ", installindex = " + installindex);
 				//只能存包名了，所以考虑apk的扫描方式
 				iaa.addSuccessList(packageName);
+				//将安装成功的包放入iaa的安装成功列表中
+				iaa.addSuccessList(mData.get(installindex));
 //				Integer tmp = iaa.getInstallApks().get(mInstallComplete);
 //				iaa.addSuccessList(iaa.getInstallApks().get(mInstallComplete));
 			}else
 			{
 				//只能存包名了，所以考虑apk的扫描方式
 				iaa.addFailList(packageName);//mData.get(installindex)
+				//将安装失败应用放入安装失败列表中
+				iaa.addFailList(mData.get(installindex));
 				Log.i(TAG, "install failure =" + packageName + ", installindex = " + installindex
 						+ ", returncode = " + returnCode);
 			}
+			//不管安装成功或者失败，应用的下标都应该新增
+			installindex ++;
+			//不管安装成功或者失败，都算是安装完成，这个标志位用来判断是否所有选中的应用都安装了。
 			mInstallComplete ++;
 			Log.i(TAG, "install returnCode =" + returnCode + "， mInstallComplete = " + mInstallComplete + ", checked counts = " + iaa.getCheckedCounts());
 			if(mInstallComplete == iaa.getCheckedCounts())
 			{//当所有的应用安装完毕后再显示安装结果
 				Message msg = mHandler.obtainMessage(INSTALL_COMPLETE);
 				mHandler.sendMessage(msg);
+				//如果已经发送了安装完成信息，也就是说安装完成个数跟选中的应用个数一样，那么就
+				//就判定整个过程完成了，不需要在递归了，所以return。
+				return;
+			}
+			//如果程序没有遍历完应用列表，那么依然继续递归安装过程
+			if(installindex < mData.size())
+			{
+				installApkBatch(installindex);
 			}
 		}
     	
