@@ -94,6 +94,7 @@ public class OneKeyActivity extends Activity {
 //	private ApplicationInfo mAppInfo = null;
 	private final int INSTALL_COMPLETE = 1;
 	private final int SCAN_COMPLETE = 2;
+	private final int UPDATE_BUTTON_TEXT = 3;
 //	int installcount;//安装的总个数
 //	int installsuccesscount;//成功个数
 //	int installfailcount;//失败个数
@@ -241,18 +242,24 @@ public class OneKeyActivity extends Activity {
 				Log.i(TAG, "selected num = " + selectedNum + "iaa.getAllApkCounts = " + iaa.getAllApkCounts());
 				if(selectedNum != iaa.getAllApkCounts())
 				{//如果选中个数跟当前不一样，说明点击之前显示的是全选，所以触发的是全选，随后显示取消全选
-					iaa.setAllCheckboxStatus(true);
-					setAllListViewState(true);
+					iaa.setAllCheckboxStatus(true);					
 					tv_selected_apps.setVisibility(View.VISIBLE);
 					tv_selected_apps.setText("" + iaa.getCheckedCounts());
 					bt_selectAll.setText(R.string.unSelectAll);
+					setAllListViewState(true);
 				}else
 				{//如果是一样，说明之前按钮显示的是取消全选，说明当前触发的是取消全选，随后显示全选
-					iaa.setAllCheckboxStatus(false);
-					setAllListViewState(false);
+					iaa.setAllCheckboxStatus(false);					
 					tv_selected_apps.setVisibility(View.INVISIBLE);
-					bt_selectAll.setText(R.string.selectAll);					
-				}				
+					bt_selectAll.setText(R.string.selectAll);
+					setAllListViewState(false);
+				}		
+				//如果在这里面更新主UI，会导致延迟。所以谨慎在子线程里面更新主线程UI。需要用
+				//Message通知主界面更新UI
+				//updateBtnText();
+//				Message msg = new Message();
+//				msg.what = UPDATE_BUTTON_TEXT;
+//				mHandler.sendMessage(msg);
 				break;
 			}
 		}
@@ -330,7 +337,12 @@ public class OneKeyActivity extends Activity {
 			mAllSelected = false;
 			iaa.setItemCheckedBoxState(view, position);
 
-			updateBtnText();
+			//如果在这里面更新主UI，会导致延迟。所以谨慎在子线程里面更新主线程UI。需要用
+			//Message通知主界面更新UI
+			//updateBtnText();
+			Message msg = new Message();
+			msg.what = UPDATE_BUTTON_TEXT;
+			mHandler.sendMessage(msg);
 //			//根据选中条目判断按钮显示的文字，判断选中的数目是否跟显示的数目一样
 //			int counts = iaa.getCheckedCounts();
 //			if(counts == apksCounts)
@@ -457,7 +469,12 @@ public class OneKeyActivity extends Activity {
 	{
 		iaa.removeApk(mLongClickSelectedFileIndex);
 		mLongClickFile.delete();//删除选中的这个文件
-		updateBtnText();
+		//如果在这里面更新主UI，会导致延迟。所以谨慎在子线程里面更新主线程UI。需要用
+		//Message通知主界面更新UI
+		//updateBtnText();
+		Message msg = new Message();
+		msg.what = UPDATE_BUTTON_TEXT;
+		mHandler.sendMessage(msg);
 		iaa.setListData(mData);
 	}
 	
@@ -709,6 +726,10 @@ public class OneKeyActivity extends Activity {
 //		        dismissDialog(CHANNELSEARCH);
 		        removeDialog(CHANNELSEARCH);
 				break;
+			case UPDATE_BUTTON_TEXT:
+				updateBtnText();
+				break;
+			
 			default:
 				break;
 			}
@@ -946,7 +967,7 @@ public class OneKeyActivity extends Activity {
 	{
 		mTargetLauncher = new ArrayList<String>();
 		//问果王桌面
-		mTargetLauncher.add("com.guobi.winguo.hybrid");
+		mTargetLauncher.add("com.cooee.Mylauncher");
 		//系统桌面，在E900里面，桌面对应的包名是com.android.launcher而不是launcher2
 		mTargetLauncher.add("com.android.launcher");
 //		mTargetLauncher.add("com.guobi.winguo.hybrid");
