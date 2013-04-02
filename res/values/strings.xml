@@ -35,6 +35,7 @@
     <string name="rename">Rename</string>
     <string name="details">Details</string>
     <string name="illegalStr">The input file name include ILLEGAL character, please try other ones!</string>
+    <string name="sd_unmounted">SD card is not unmounted, please mounted SD card and try OneKey app again!</string>
     <string name="no_app_selected">Please&#x0020;select&#x0020;one&#x0020;application&#x0020;at&#x0020;least&#x0020;and&#x0020;then&#x0020;press&#x0020;install&#x0020;button.</string>
     <string name="install_counts">Total install counts：</string>
     <string name="install_success_counts">Success installed：</string>

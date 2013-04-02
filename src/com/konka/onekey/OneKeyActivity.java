@@ -15,10 +15,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.backup.BackupManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageDataObserver;
 import android.content.pm.IPackageInstallObserver;
@@ -28,6 +30,7 @@ import android.content.pm.PackageParser;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.FileUtils;
 import android.os.Handler;
 import android.os.IBinder;
@@ -124,7 +127,20 @@ public class OneKeyActivity extends Activity {
 	//已选中，待安装的apk，最原始的数据只有mData，其他list都只记录应用的序号
 	//private List<Integer> installList = new ArrayList<Integer>();
 	//监控apk安装完成这个动作
-	private PackageInstallObserver observer = new PackageInstallObserver();;
+	private PackageInstallObserver observer = new PackageInstallObserver();
+	
+	private BroadcastReceiver mUnMountReceiver = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			// TODO Auto-generated method stub
+			Log.i(TAG, "detect the sd card state change");
+			Toast.makeText(mContext, "the activity is finished because sdcard state change", Toast.LENGTH_SHORT).show();
+			onDestroy();
+			
+		}
+	};
+	private IntentFilter mUnMountFilter = new IntentFilter(Intent.ACTION_MEDIA_UNMOUNTED);
 	
 	/**
 	 * A: 该值用来存储所有理论上不重复的应用apk。该应用“包名&版本号”作为唯一的key。
@@ -141,9 +157,34 @@ public class OneKeyActivity extends Activity {
 //	private HashMap<Integer, Boolean> mCheckedObj = new HashMap<Integer, Boolean>();
 //	private int selectedItems = 0;
 	private List<String> mTargetLauncher = null;
-	
 
-    @Override
+	@Override
+	protected void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+//		Log.i(TAG, "onStart Environment.getExternalStorageState() = " + Environment.getExternalStorageState());
+//		mUnMountFilter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+//		mContext.registerReceiver(mUnMountReceiver, mUnMountFilter);
+
+		if((Environment.getExternalStorageState().equals(
+				Environment.MEDIA_UNMOUNTED)) || (Environment.getExternalStorageState().equals(Environment.MEDIA_SHARED)))
+		{
+			Toast.makeText(mContext, mContext.getString(R.string.sd_unmounted), Toast.LENGTH_LONG ).show();
+			finish();
+		}
+	}
+
+
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		super.onStop();
+//		Log.i(TAG, "onStop");
+//		mContext.unregisterReceiver(mUnMountReceiver);	
+	}
+
+
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_one_key);
