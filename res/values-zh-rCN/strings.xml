@@ -26,6 +26,7 @@
     <string name="executable">可执行</string>
     <string name="yes">是</string>
     <string name="no">否</string>
+    <string name="illegalStr">输入的文件名含有非法字符，请使用其他字符！</string>
     <string name="sure">确定</string>
     <string name="cancel">取消</string>
     <string name="share_file">分享文件</string>

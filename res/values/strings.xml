@@ -34,6 +34,7 @@
     <string name="delete_confirm">Are&#x0020;you&#x0020;sure&#x0020;to&#x0020;delete&#x0020;this&#x0020;file?</string>
     <string name="rename">Rename</string>
     <string name="details">Details</string>
+    <string name="illegalStr">The input file name include ILLEGAL character, please try other ones!</string>
     <string name="no_app_selected">Please&#x0020;select&#x0020;one&#x0020;application&#x0020;at&#x0020;least&#x0020;and&#x0020;then&#x0020;press&#x0020;install&#x0020;button.</string>
     <string name="install_counts">Total install counts：</string>
     <string name="install_success_counts">Success installed：</string>

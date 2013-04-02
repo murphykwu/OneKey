@@ -122,7 +122,7 @@ public class InstallAppAdapter extends BaseAdapter {
 		viewHolder.tv_appVersion.setText(mAppVersion);
 		viewHolder.cb_installed.setChecked(mData.get(position).IsChecked());//isSelected.get(position)
 		//将listview里面的checkbox设置为不可点击即可。这样listview的响应事件会优先处理，不会造成
-		//checkbox点击了，而没有事件响应的情况出现。
+		//checkbox点击了，而没有事件响应
 		viewHolder.cb_installed.setClickable(false);
 		
 		return convertView;		

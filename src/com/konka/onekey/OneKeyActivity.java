@@ -122,7 +122,7 @@ public class OneKeyActivity extends Activity {
 	private ProgressDialog searchDialog;
 	private ScanApks sa;
 	//已选中，待安装的apk，最原始的数据只有mData，其他list都只记录应用的序号
-	private List<Integer> installList = new ArrayList<Integer>();
+	//private List<Integer> installList = new ArrayList<Integer>();
 	//监控apk安装完成这个动作
 	private PackageInstallObserver observer = new PackageInstallObserver();;
 	
@@ -133,8 +133,9 @@ public class OneKeyActivity extends Activity {
 	 * 如果有应用包名一样，但是版本号不一样，那么依然显示，因为用户可能会选择装低版本的软件。
 	 * 
 	 * B: 或者可以用文件路径来作为key。这样所有的apk就都会显示出来。如果之前安装了，继续覆盖安装。
+	 * 暂时不需要这个处理过程。因为产品要求所有的apk都要列出来。
 	 */
-	private HashMap<String, ApkDetails> allAppMap = new HashMap<String, ApkDetails>();
+//	private HashMap<String, ApkDetails> allAppMap = new HashMap<String, ApkDetails>();
 	
 	private Boolean mAllSelected = false;
 //	private HashMap<Integer, Boolean> mCheckedObj = new HashMap<Integer, Boolean>();
@@ -170,12 +171,12 @@ public class OneKeyActivity extends Activity {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				//测试专用
+				//后面的地址是测试专用
 				sa.scanExternalStorage(null);//"/storage/sdcard0/test"
 				Message msg = new Message();
 				msg.what = SCAN_COMPLETE;
 				mHandler.sendMessage(msg);
-			}        	
+			}
         }).start();
         iaa = new InstallAppAdapter(getLayoutInflater(), this, mData);
         apksCounts = mData.size();
@@ -221,11 +222,6 @@ public class OneKeyActivity extends Activity {
 					    	installindex = 0;
 					    	iaa.clearSuceesAndFailList();
 							installApkBatch(installindex);
-							//由于安装完毕之后，launcher需要比较长时间才能将程序图标在mainmenu里面刷新出来
-							//所以先延迟5秒钟，但是还是有一两个图标会延迟显示。没办法了，可能需要查一下launcher如何刷新的
-							//结果发现当程序监听到package安装完毕需要一定的时间，所以不需要这个延时了。
-//							Thread.sleep(2000);
-//							proDialog.cancel();
 						} catch (Exception e) {//InterruptedException
 							// TODO Auto-generated catch block
 							Log.i(TAG, "e.printStackTrace()");
@@ -242,7 +238,7 @@ public class OneKeyActivity extends Activity {
 				Log.i(TAG, "selected num = " + selectedNum + "iaa.getAllApkCounts = " + iaa.getAllApkCounts());
 				if(selectedNum != iaa.getAllApkCounts())
 				{//如果选中个数跟当前不一样，说明点击之前显示的是全选，所以触发的是全选，随后显示取消全选
-					iaa.setAllCheckboxStatus(true);					
+					iaa.setAllCheckboxStatus(true);
 					tv_selected_apps.setVisibility(View.VISIBLE);
 					tv_selected_apps.setText("" + iaa.getCheckedCounts());
 					bt_selectAll.setText(R.string.unSelectAll);
@@ -436,9 +432,15 @@ public class OneKeyActivity extends Activity {
 			File destFile = new File(desFileName);
 			
 			boolean result = mLongClickFile.renameTo(destFile);
-//			Log.i(TAG, "dialogRenameOnClick---------sourceFile = " + mLongClickFile.getName() 
-//					+ ", destFile = " + destFile.getName() + ", result = " + (result?"true":"false"));
-			mData.get(mLongClickSelectedFileIndex).setFile(destFile);
+			Log.i(TAG, "dialogRenameOnClick---------sourceFile = " + mLongClickFile.getName() 
+					+ ", destFile = " + destFile.getName() + ", result = " + (result?"true":"false"));
+			if(result)
+			{
+				mData.get(mLongClickSelectedFileIndex).setFile(destFile);
+			}else
+			{/*如果重命名失败，说明有非法字符*/
+				Toast.makeText(mContext, mContext.getResources().getString(R.string.illegalStr), Toast.LENGTH_SHORT).show();				
+			}
 			iaa.setListData(mData);
 
 		}
