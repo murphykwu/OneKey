@@ -1,9 +1,9 @@
 <resources>
 
-    <string name="app_name">一键安装</string>
+    <string name="app_name">一键快速安装</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_one_key">一键安装</string>
+    <string name="title_activity_one_key">一键快速安装</string>
     <string name="default_app_name">默认程序名称</string>
     <string name="default_app_version">版本:&#x0020;1.0</string>
     <string name="default_app_version_tag">版本:&#x0020;</string>
