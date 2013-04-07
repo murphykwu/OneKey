@@ -1,9 +1,9 @@
 <resources>
 
-    <string name="app_name">一键快速安装</string>
+    <string name="app_name">一键安装</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_one_key">一键快速安装</string>
+    <string name="title_activity_one_key">一键安装</string>
     <string name="default_app_name">默认程序名称</string>
     <string name="default_app_version">版本:&#x0020;1.0</string>
     <string name="default_app_version_tag">版本:&#x0020;</string>
@@ -26,8 +26,9 @@
     <string name="executable">可执行</string>
     <string name="yes">是</string>
     <string name="no">否</string>
-    <string name="illegalStr">输入的文件名含有非法字符，请使用其他字符！</string>
-    <string name="sd_unmounted">由于USB存储设备被打开，一键安装无法访问存储卡，请关闭USB存储模式之后再运行一键安装程序！</string>
+    <string name="illegalStr">输入的文件名中含有非法字符，请输入合适的文件名。</string>
+    <string name="sd_unmounted">存储卡未挂载或者正在扫描，待存储卡准备完毕之后再运行一键安装程序！</string>
+    <string name="sd_statechange">存储卡状态发生改变，待存储卡可访问之后再运行一键安装程序。</string>
     <string name="sure">确定</string>
     <string name="cancel">取消</string>
     <string name="share_file">分享文件</string>

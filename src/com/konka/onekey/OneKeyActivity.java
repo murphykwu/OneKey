@@ -21,6 +21,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentFilter.MalformedMimeTypeException;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageDataObserver;
 import android.content.pm.IPackageInstallObserver;
@@ -44,6 +45,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -84,23 +86,12 @@ public class OneKeyActivity extends Activity {
 	//扫描到的所有apk信息都放在mData里面
 	private List<ApkDetails> mData = new ArrayList<ApkDetails>();
 	private int apksCounts = 0;
-//	private ArrayList successList;
-//	static ArrayList checkList;
-//	private Uri mPackageURI;
 	private WakeLock mWakeLock;
 	private PackageManager mPm;
-//	private PackageParser.Package mPkgInfo;
-//	private List<File> apks;
 	private int installindex = 0;
-//	private boolean installflag = true;
-//	ArrayList failList=null;
-//	private ApplicationInfo mAppInfo = null;
 	private final int INSTALL_COMPLETE = 1;
 	private final int SCAN_COMPLETE = 2;
 	private final int UPDATE_BUTTON_TEXT = 3;
-//	int installcount;//安装的总个数
-//	int installsuccesscount;//成功个数
-//	int installfailcount;//失败个数
 	int mInstallComplete = 0;
 	//标识长按的listview里面的条目
 	private int mLongClickSelectedFileIndex = 0;
@@ -124,8 +115,7 @@ public class OneKeyActivity extends Activity {
 	private ProgressDialog proDialog;
 	private ProgressDialog searchDialog;
 	private ScanApks sa;
-	//已选中，待安装的apk，最原始的数据只有mData，其他list都只记录应用的序号
-	//private List<Integer> installList = new ArrayList<Integer>();
+	private boolean mTFUnmounted = false;
 	//监控apk安装完成这个动作
 	private PackageInstallObserver observer = new PackageInstallObserver();
 	
@@ -134,13 +124,26 @@ public class OneKeyActivity extends Activity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// TODO Auto-generated method stub
-			Log.i(TAG, "detect the sd card state change");
-			Toast.makeText(mContext, "the activity is finished because sdcard state change", Toast.LENGTH_SHORT).show();
-			onDestroy();
+			String action = intent.getAction();
+			if((action.equals("android.intent.action.MEDIA_EJECT"))
+					|| (action.equals("android.intent.action.MEDIA_UNMOUNTED"))
+					|| (action.equals("android.intent.action.MEDIA_SHARED")))
+			{
+				Log.i(TAG, "detect sd card action = " + action);
+				mTFUnmounted = true;
+				Toast.makeText(mContext, getString(R.string.sd_statechange), Toast.LENGTH_LONG).show();
+				//可以采取延时关闭程序的方式，避免突然关闭造成很突然的感觉
+				unregisterReceiver(mUnMountReceiver);
+				finish();
+			}else if(action.equals("android.intent.action.MEDIA_MOUNTED"))
+			{//检测到载入信息
+				mTFUnmounted = false;
+			}
 			
+			mTFUnmounted = true;
 		}
 	};
-	private IntentFilter mUnMountFilter = new IntentFilter(Intent.ACTION_MEDIA_UNMOUNTED);
+	private IntentFilter mUnMountFilter;
 	
 	/**
 	 * A: 该值用来存储所有理论上不重复的应用apk。该应用“包名&版本号”作为唯一的key。
@@ -154,39 +157,45 @@ public class OneKeyActivity extends Activity {
 //	private HashMap<String, ApkDetails> allAppMap = new HashMap<String, ApkDetails>();
 	
 	private Boolean mAllSelected = false;
-//	private HashMap<Integer, Boolean> mCheckedObj = new HashMap<Integer, Boolean>();
-//	private int selectedItems = 0;
 	private List<String> mTargetLauncher = null;
 
 	@Override
 	protected void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
-//		Log.i(TAG, "onStart Environment.getExternalStorageState() = " + Environment.getExternalStorageState());
-//		mUnMountFilter.addAction(Intent.ACTION_MEDIA_MOUNTED);
-//		mContext.registerReceiver(mUnMountReceiver, mUnMountFilter);
-
-		if((Environment.getExternalStorageState().equals(
-				Environment.MEDIA_UNMOUNTED)) || (Environment.getExternalStorageState().equals(Environment.MEDIA_SHARED)))
-		{
+		//每次进入的时候必须检查T卡状态。这样比较好。
+		String externalState = Environment.getExternalStorageState();
+		Log.i(TAG, "onstart，确认修改1externalState = " + externalState);
+		if((externalState.equals(Environment.MEDIA_UNMOUNTED)) 
+				|| (externalState.equals(Environment.MEDIA_SHARED))
+				|| (externalState.equals(Environment.MEDIA_CHECKING)))
+		{//T卡已经卸载、处于大容量存储模式、T卡正在载入，请等待载入完毕再运行一键安装程序
 			Toast.makeText(mContext, mContext.getString(R.string.sd_unmounted), Toast.LENGTH_LONG ).show();
+//			unregisterReceiver(mUnMountReceiver);
 			finish();
 		}
+		
+		//注册监听器
+//		Log.i(TAG, "onStart Environment.getExternalStorageState() = " + Environment.getExternalStorageState());
+		mUnMountFilter = new IntentFilter(Intent.ACTION_MEDIA_UNMOUNTED);
+		mUnMountFilter.addAction(Intent.ACTION_MEDIA_EJECT);
+		mUnMountFilter.addAction(Intent.ACTION_MEDIA_SHARED);//当以大容量存储模式共享外部存储空间的时候触发
+		mUnMountFilter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+		mUnMountFilter.addDataScheme("file");		
+		registerReceiver(mUnMountReceiver, mUnMountFilter);
 	}
-
 
 	@Override
-	protected void onStop() {
+	protected void onPause() {
 		// TODO Auto-generated method stub
-		super.onStop();
-//		Log.i(TAG, "onStop");
-//		mContext.unregisterReceiver(mUnMountReceiver);	
+		super.onPause();
+		Log.i(TAG, "---------------onPause");
 	}
-
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "--------onCreate");
         setContentView(R.layout.activity_one_key);
         mContext = this.getApplicationContext();
         PowerManager powerManager = (PowerManager)this.getSystemService(Context.POWER_SERVICE);
@@ -291,12 +300,6 @@ public class OneKeyActivity extends Activity {
 					bt_selectAll.setText(R.string.selectAll);
 					setAllListViewState(false);
 				}		
-				//如果在这里面更新主UI，会导致延迟。所以谨慎在子线程里面更新主线程UI。需要用
-				//Message通知主界面更新UI
-				//updateBtnText();
-//				Message msg = new Message();
-//				msg.what = UPDATE_BUTTON_TEXT;
-//				mHandler.sendMessage(msg);
 				break;
 			}
 		}
@@ -556,24 +559,18 @@ public class OneKeyActivity extends Activity {
 
     //处理菜单事件
     public boolean onOptionsItemSelected(MenuItem item)
-    {
-    	
-    	int item_id=item.getItemId();
- 
+    {    	
+    	int item_id=item.getItemId(); 
     	switch(item_id)
     	{
     		case R.id.about:
 	
     		Intent ab_intent =new Intent();
     		ab_intent.setClass(OneKeyActivity.this,AboutActivity.class);
-    		startActivity(ab_intent);
-    		
+    		startActivity(ab_intent);    		
     		break;
-
-    	}
-    	
-		return true;
-    	
+    	}    	
+		return true;    	
     }
 
     /**
@@ -583,100 +580,41 @@ public class OneKeyActivity extends Activity {
      * 安装mData中指定下标的apk。
      * @param apkIndex
      */
-    public void installApkBatch(int apkIndex)    {
-    	
+	public void installApkBatch(int apkIndex) {
 
-//    	for(int i = 0; i < dataSize; i ++)
-//    	{
-//    		installindex  = i;
-//    		Log.i(TAG, "for mData i = " + i);
-    		/*当选定要安装的时候才执行安装动作*/
-    		if((mData.get(apkIndex).IsChecked()) && (mData.get(apkIndex).getPackage() != null))
-    		{
-    			Log.i(TAG, "程序被选中，可以安装。apkIndex = " + apkIndex);
-    	    	String pkgName = mData.get(apkIndex).getPackage().packageName;    	    	
-    	    	String[] oldName = mPm.canonicalToCurrentPackageNames(new String[]{pkgName});
-    	    	if(oldName != null && oldName.length > 0 && oldName[0] != null)
-    	    	{
-    	    		pkgName = oldName[0];
-    	    		mData.get(apkIndex).getPackage().setPackageName(pkgName);
-    	    	}
-    	    	try{
-    	    		mData.get(apkIndex).setApplicationInfo(mPm.getApplicationInfo(pkgName, PackageManager.GET_UNINSTALLED_PACKAGES));
-    	    	}catch(NameNotFoundException e)
-    	    	{
-    	    		mData.get(apkIndex).setApplicationInfo(null);
-    	    	}
-    	    	ApkDetails mAd = mData.get(apkIndex);
-    	    	int iFlag = mAd.getInstallFlag();
-    	    	String installerPackagename = getIntent().getStringExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME);    	    	
-    	    	mPm.installPackage(mAd.getPackageURI(), observer, iFlag, installerPackagename);
-    		}else
-    		{
-    			//如果本来就是这个apk文件只是有一个apk后缀，但是内部文件是错误的。那么依然需要判断。
-    			//这个环节在扫描阶段已经判断了，所以不需要再进行处理，谨慎起见，依然做一个判断
-    			Log.i(TAG, "有一个apk没有被选中. i = " + apkIndex + ", PackageName = " + mData.get(apkIndex).getPackageName());
-    			installindex ++;
-    			installApkBatch(installindex);
-    			
-    		}
-//    	}
-    }
-    
-    
-    /**
-     * 批量安装的程序    
-     */
-//    public void installBatch2()
-//    {
-//
-//    	mWakeLock.acquire();
-//    	//获取已经选择的要安装的程序列表
-//    	List<Integer> installingApks = iaa.getInstallApks();
-//    	int installCount = installingApks.size();
-//    	while(installindex < installCount)
-//    	{//如果正在安装的这个apk的package变量不是为空，那么就安装
-//    		if(mData.get(installingApks.get(installindex)).getPackage() != null)
-//    		{//安装在选中的应用列表中的单个程序。
-//    			initiateInstall2();
-//    		}
-//    		installindex ++;
-//    	}
-//    }
-    
-    /**
-     * 安装当前轮到的apk应用
-     */
-//    private void initiateInstall2()
-//    {
-//    	String pkgName = mData.get(iaa.getInstallApks().get(installindex)).getPackage().packageName;
-//    	mPm = getPackageManager();
-//    	String[] oldName = mPm.canonicalToCurrentPackageNames(new String[]{pkgName});
-//    	if(oldName != null && oldName.length > 0 && oldName[0] != null)
-//    	{
-//    		pkgName = oldName[0];
-//    		mData.get(iaa.getInstallApks().get(installindex)).getPackage().setPackageName(pkgName);
-//    	}
-//    	try{
-//    		mData.get(iaa.getInstallApks().get(installindex)).setApplicationInfo(mPm.getApplicationInfo(pkgName, PackageManager.GET_UNINSTALLED_PACKAGES));
-//    	}catch(NameNotFoundException e)
-//    	{
-//    		mData.get(iaa.getInstallApks().get(installindex)).setApplicationInfo(null);
-//    	}
-//    	initView2();
-//    }
-    
-    /**
-     * 主要是获取installFlag的值。调用installPackage进行安装。
-     */
-//    public void initView2()
-//    {
-//    	ApkDetails mAd = mData.get(iaa.getInstallApks().get(installindex));
-//    	int iFlag = mAd.getInstallFlag();
-//    	String installerPackagename = getIntent().getStringExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME);
-//    	PackageInstallObserver observer = new PackageInstallObserver();
-//    	mPm.installPackage(mAd.getPackageURI(), observer, iFlag, installerPackagename);
-//    }
+		/* 当选定要安装的时候才执行安装动作 */
+		if ((mData.get(apkIndex).IsChecked())
+				&& (mData.get(apkIndex).getPackage() != null)) {
+			Log.i(TAG, "程序被选中，可以安装。apkIndex = " + apkIndex);
+			String pkgName = mData.get(apkIndex).getPackage().packageName;
+			String[] oldName = mPm
+					.canonicalToCurrentPackageNames(new String[] { pkgName });
+			if (oldName != null && oldName.length > 0 && oldName[0] != null) {
+				pkgName = oldName[0];
+				mData.get(apkIndex).getPackage().setPackageName(pkgName);
+			}
+			try {
+				mData.get(apkIndex).setApplicationInfo(
+						mPm.getApplicationInfo(pkgName,
+								PackageManager.GET_UNINSTALLED_PACKAGES));
+			} catch (NameNotFoundException e) {
+				mData.get(apkIndex).setApplicationInfo(null);
+			}
+			ApkDetails mAd = mData.get(apkIndex);
+			int iFlag = mAd.getInstallFlag();
+			String installerPackagename = getIntent().getStringExtra(
+					Intent.EXTRA_INSTALLER_PACKAGE_NAME);
+			mPm.installPackage(mAd.getPackageURI(), observer, iFlag,
+					installerPackagename);
+		} else {
+			// 如果本来就是这个apk文件只是有一个apk后缀，但是内部文件是错误的。那么依然需要判断。
+			// 这个环节在扫描阶段已经判断了，所以不需要再进行处理，谨慎起见，依然做一个判断
+			Log.i(TAG, "有一个apk没有被选中. i = " + apkIndex + ", PackageName = "
+					+ mData.get(apkIndex).getPackageName());
+			installindex++;
+			installApkBatch(installindex);
+		}
+	}
     
     /**
      * 监控安装状况如何。查看PackageManager.INSTALL_SUCCEEDED，这个类里面有多达20种安装不成功的状况
@@ -686,7 +624,6 @@ public class OneKeyActivity extends Activity {
      */
     class PackageInstallObserver extends IPackageInstallObserver.Stub
     {
-
 		@Override
 		public void packageInstalled(String packageName, int returnCode)
 				throws RemoteException {
@@ -728,8 +665,7 @@ public class OneKeyActivity extends Activity {
 			{
 				installApkBatch(installindex);
 			}
-		}
-    	
+		}    	
     }
     
     /**
@@ -776,8 +712,7 @@ public class OneKeyActivity extends Activity {
 			default:
 				break;
 			}
-		}
-    	
+		}    	
     };
     
     protected Dialog onCreateDialog(int id)
@@ -813,8 +748,7 @@ public class OneKeyActivity extends Activity {
     		//显示详情
     	case DIALOG_DETAIL:
 //    		Log.i(TAG, "onCreateDialog-----DIALOG_DETAIL");
-    		return showFileDetail(); 
-    		
+    		return showFileDetail();
     	}
     	return null;
     }
@@ -859,8 +793,7 @@ public class OneKeyActivity extends Activity {
     	dialog.setMessage(showStr);
     	dialog.setCanceledOnTouchOutside(false);
 //    	ProgressDialog progressdialog = (ProgressDialog)dialog
-    	dialog.setOnKeyListener(new OnKeyListener() {
-			
+    	dialog.setOnKeyListener(new OnKeyListener() {			
 			@Override
 			public boolean onKey(DialogInterface arg0, int arg1, KeyEvent arg2) {
 				// TODO Auto-generated method stub
@@ -941,7 +874,11 @@ public class OneKeyActivity extends Activity {
     			.setMessage(detail).setPositiveButton(mContext.getString(R.string.sure), null).create();
     	return detailDialog;
     }
-    
+    /**
+     * 将文件大小转变成B、KB、MB、GB等
+     * @param size
+     * @return
+     */
     private String transSizeToString(long size)
     {
     	final String UNIT_B = "B";
@@ -1004,7 +941,7 @@ public class OneKeyActivity extends Activity {
 	}
 	
 	/**
-	 * 初始化需要重启的Launcher的列表。
+	 * 初始化需要重启的Launcher的列表。但是在4.2中似乎没有起作用了。暂时保留
 	 */
 	private void initTargetLauncher()
 	{
@@ -1036,8 +973,6 @@ public class OneKeyActivity extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 	class PackageDataClearObserver implements IPackageDataObserver{
@@ -1056,7 +991,8 @@ public class OneKeyActivity extends Activity {
 		}
 		
 	}
-
+	
+	
 	/**
 	 * 重构监听按键函数。点击两次back键才退出，防止用户误触back键。
 	 */
