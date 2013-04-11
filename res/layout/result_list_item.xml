@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <ImageView
+        android:id="@+id/iv_app_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/iv_description"
+        android:src="@drawable/ic_action_search"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/tv_app_file"
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="10dip"
+            android:ellipsize="middle"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:textColor="#ff6600"
+            android:text="@string/default_app_name" />
+        <!-- 下面的这个条目不一定用到，但是可以用来占位，
+			如果用到的话启用它就好了，本来想做 程序出错原因的，但是安装失败的原因见
+			PackageManager.java里面从INSTALL_SUCCEEDED到INSTALL_FAILED_INTERNAL_ERROR
+			总共有110总错误情况。还是算了，不给出出错原因了，一般用户也不会想知道安装失败原因。
+			所以将下面的visibility设置为gone状态-->
+
+        <TextView
+            android:id="@+id/tv_app_reason"
+            android:layout_height="fill_parent"
+            android:layout_width="0dip"
+            android:layout_weight="1.0"
+            android:layout_marginLeft="10dp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</LinearLayout>

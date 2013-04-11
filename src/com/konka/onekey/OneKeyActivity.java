@@ -313,8 +313,11 @@ public class OneKeyActivity extends Activity {
 		mWakeLock.release();
 		Bundle bundle = new Bundle();
 		bundle.putInt(InstallAppAdapter.INSTALL_COUNTS, iaa.getCheckedCounts());
-		bundle.putInt(InstallAppAdapter.INSTALL_SUCESS_COUNTS, iaa.getSucessCounts());
+		bundle.putInt(InstallAppAdapter.INSTALL_SUCCESS_COUNTS, iaa.getSucessCounts());
 		bundle.putInt(InstallAppAdapter.INSTALL_FAILURE_COUNTS, iaa.getFailureCounts());
+		//将成功和失败列表都传入下一个activity
+		bundle.putStringArrayList(InstallAppAdapter.INSTALL_FAILURE_LIST, iaa.getFailureStrList());
+		bundle.putStringArrayList(InstallAppAdapter.INSTALL_SUCCESS_LIST, iaa.getSuccessStrList());
 		Log.i(TAG, iaa.getCheckedCounts() + "    ," + iaa.getSucessCounts());
 		Intent intent = new Intent(OneKeyActivity.this, ResultShowActivity.class);
 		intent.putExtras(bundle);
@@ -631,9 +634,12 @@ public class OneKeyActivity extends Activity {
 			//如果安装成功执行如下操作
 			if(returnCode == PackageManager.INSTALL_SUCCEEDED)
 			{
-				Log.i(TAG, "install success =" + packageName + ", installindex = " + installindex);
+				Log.i(TAG, "install success =" + packageName + ", installindex = " + installindex
+						+ ", apk name = " + mData.get(installindex).getFile().getName());
 				//只能存包名了，所以考虑apk的扫描方式
-				iaa.addSuccessList(packageName);
+				//由于需要加入针对安装失败文件的处理，所以采用将文件名保存的方式。
+				//但是这个对于同名文件，但是不同地址的apk文件支持不够好。中间用&连接，这样还可以监督到安装失败的原因
+				iaa.addSuccessList(mData.get(installindex).getFile().getName() + '&' + returnCode);
 				//将安装成功的包放入iaa的安装成功列表中
 				iaa.addSuccessList(mData.get(installindex));
 //				Integer tmp = iaa.getInstallApks().get(mInstallComplete);
@@ -641,11 +647,13 @@ public class OneKeyActivity extends Activity {
 			}else
 			{
 				//只能存包名了，所以考虑apk的扫描方式
-				iaa.addFailList(packageName);//mData.get(installindex)
+				//由于需要加入针对安装失败文件的处理，所以采用将文件名保存的方式。
+				//但是这个对于同名文件，但是不同地址的apk文件支持不够好。
+				iaa.addFailList(mData.get(installindex).getFile().getName() + '&' + returnCode);//mData.get(installindex)
 				//将安装失败应用放入安装失败列表中
 				iaa.addFailList(mData.get(installindex));
 				Log.i(TAG, "install failure =" + packageName + ", installindex = " + installindex
-						+ ", returncode = " + returnCode);
+						+ ", returncode = " + returnCode + ", apk name = " + mData.get(installindex).getFile().getName());
 			}
 			//不管安装成功或者失败，应用的下标都应该新增
 			installindex ++;

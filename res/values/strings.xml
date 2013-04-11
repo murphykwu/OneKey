@@ -53,7 +53,8 @@
     <string name="at_muse_ui">"@MuseUI"</string>
     <string name="tencent_microblog">Tencent Weibo</string> 
     <string name="service_QQ">Custom Service QQ:2817457226</string>
-    <string name="copyright_info">MuseUI Studio    All Rights Reserved</string>    
+    <string name="copyright_info">MuseUI Studio    All Rights Reserved</string>
+    <string name="install_failure">Install failure apps list:</string>
     
     
 

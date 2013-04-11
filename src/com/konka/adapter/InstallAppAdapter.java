@@ -25,8 +25,8 @@ public class InstallAppAdapter extends BaseAdapter {
 	private List<ApkDetails> mData = new ArrayList<ApkDetails>();
 	private List<ApkDetails> mInstallSuccess = new ArrayList<ApkDetails>();
 	private List<ApkDetails> mInstallFailure = new ArrayList<ApkDetails>();
-	private List<String> mStrInstallSuccess = new ArrayList<String>();
-	private List<String> mStrInstallFailure = new ArrayList<String>();
+	private ArrayList<String> mStrInstallSuccess = new ArrayList<String>();
+	private ArrayList<String> mStrInstallFailure = new ArrayList<String>();
 	/**
 	 * 选中待安装的apk位置
 	 */
@@ -41,8 +41,10 @@ public class InstallAppAdapter extends BaseAdapter {
 	private int allApkCount = 0;
 	private Context mContext;
 	public static final String INSTALL_COUNTS = "install_counts";
-	public static final String INSTALL_SUCESS_COUNTS = "install_sucess_counts";
+	public static final String INSTALL_SUCCESS_COUNTS = "install_success_counts";
 	public static final String INSTALL_FAILURE_COUNTS = "install_failure_counts";
+	public static final String INSTALL_FAILURE_LIST = "install_failure_list";
+	public static final String INSTALL_SUCCESS_LIST = "install_success_list";
 	
 
 	public InstallAppAdapter(LayoutInflater inflater, Context mContext, List<ApkDetails> mData)
@@ -291,6 +293,15 @@ public class InstallAppAdapter extends BaseAdapter {
 		return mStrInstallSuccess.size();
 		//return mSetInstallSuccess.size();
 		
+	}
+	
+	public ArrayList<String> getSuccessStrList()
+	{
+		return mStrInstallSuccess;
+	}
+	public ArrayList<String> getFailureStrList()
+	{
+		return mStrInstallFailure;
 	}
 	
 	public int getFailureCounts()

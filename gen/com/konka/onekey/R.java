@@ -36,12 +36,12 @@ public final class R {
         public static final int TextView03=0x7f080028;
         public static final int ab_return=0x7f080001;
         public static final int ab_st_version=0x7f08001c;
-        public static final int about=0x7f08002e;
+        public static final int about=0x7f080032;
         public static final int bt_install=0x7f080022;
         public static final int bt_select=0x7f080020;
-        public static final int cb_checkedApp=0x7f08002a;
+        public static final int cb_checkedApp=0x7f08002c;
         public static final int imageView1=0x7f080019;
-        public static final int iv_app_icon=0x7f08002b;
+        public static final int iv_app_icon=0x7f08002d;
         public static final int line_style_one=0x7f080005;
         public static final int line_style_two_one=0x7f08000a;
         public static final int line_style_two_three=0x7f080014;
@@ -49,6 +49,7 @@ public final class R {
         public static final int linearLayout1=0x7f08001d;
         public static final int ll_btnView=0x7f08001f;
         public static final int lv_installApps=0x7f08001e;
+        public static final int lv_install_failure=0x7f08002b;
         public static final int museUI_icon=0x7f080015;
         public static final int museui_bbs=0x7f080007;
         public static final int myAbout=0x7f080000;
@@ -72,10 +73,13 @@ public final class R {
         public static final int relativeLayout2=0x7f080025;
         public static final int textView1=0x7f08001a;
         public static final int textView2=0x7f08001b;
-        public static final int tv_app_name=0x7f08002c;
-        public static final int tv_app_version=0x7f08002d;
+        public static final int tv_app_file=0x7f080030;
+        public static final int tv_app_name=0x7f08002e;
+        public static final int tv_app_reason=0x7f080031;
+        public static final int tv_app_version=0x7f08002f;
         public static final int tv_install_counts=0x7f080024;
         public static final int tv_install_failure=0x7f080029;
+        public static final int tv_install_failure_title=0x7f08002a;
         public static final int tv_install_success=0x7f080027;
         public static final int tv_number=0x7f080021;
         public static final int xinlang_wb=0x7f08000c;
@@ -85,6 +89,7 @@ public final class R {
         public static final int activity_one_key=0x7f030001;
         public static final int activity_result_show=0x7f030002;
         public static final int apps_list_item=0x7f030003;
+        public static final int result_list_item=0x7f030004;
     }
     public static final class menu {
         public static final int activity_one_key=0x7f070000;
@@ -112,6 +117,7 @@ public final class R {
         public static final int illegalStr=0x7f050022;
         public static final int install=0x7f050009;
         public static final int install_counts=0x7f050026;
+        public static final int install_failure=0x7f050036;
         public static final int install_failure_counts=0x7f050028;
         public static final int install_success_counts=0x7f050027;
         public static final int installing=0x7f05000f;

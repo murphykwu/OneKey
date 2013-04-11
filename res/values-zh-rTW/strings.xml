@@ -53,6 +53,7 @@
     <string name="at_muse_ui">"@MuseUI"</string>
     <string name="tencent_microblog">騰訊微博</string> 
     <string name="service_QQ">客服QQ:2817457226</string>
-    <string name="copyright_info">MuseUI工作室    版權所有</string>    
+    <string name="copyright_info">MuseUI工作室    版權所有</string>
+    <string name="install_failure">安裝失敗的應用列表:</string>
 
 </resources>

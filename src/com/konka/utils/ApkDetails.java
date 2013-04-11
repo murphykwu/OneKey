@@ -22,11 +22,11 @@ import android.util.Log;
  * @author {wphoenix9}
  *
  */
-public class ApkDetails {
+public class ApkDetails{
 	private static final String TAG = "onekey";
 	private static final boolean DBG = true;
 	private PackageInfo packageInfo;
-	private ApplicationInfo appInfo;	
+	private ApplicationInfo appInfo;
 	private Context mContext;
 	//apk文件的绝对路径
 	private String absPath;
@@ -36,8 +36,8 @@ public class ApkDetails {
 	private String version = "1.0";
 	private Drawable icon1, icon2;
 	private File apks = null;
-	//判断是否已经选中进行安装
-	private boolean isChecked = false;
+//	//判断是否已经选中进行安装
+//	private boolean isChecked = false;
 	private Uri mPackageURI = null;
 	private PackageParser.Package mPkgInfo = null;
 	private int installFlag = 0;
@@ -254,16 +254,6 @@ public class ApkDetails {
 	{
 		return apks.getAbsolutePath();
 	}
-
-//	public boolean ifInstall()
-//	{
-//		return ifInstall;
-//	}
-//	
-//	public void setInstallFlag(boolean install)
-//	{
-//		ifInstall = install;
-//	}
 	
 	/**
 	 * 设定该应用是否安装成功
